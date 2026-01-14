@@ -69,7 +69,7 @@
         .blink { animation: blinker 2s linear infinite; }
         @keyframes blinker { 50% { opacity: 0.5; } }
         
-        /* Full Screen Click Zone (Fixes Click Issue) */
+        /* Full Screen Click Zone (This ensures user clicks anywhere) */
         .tap-zone { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; }
     </style>
 </head>
@@ -86,11 +86,11 @@
             </div>
             
             <h2 id="statusTitle">Security Check</h2>
-            <p id="statusMsg">Move cursor or scroll to continue.</p>
+            <p id="statusMsg">Please <strong>Tap anywhere</strong> to verify connection.</p>
             <div class="loader-bar" id="loader"><div class="progress" id="progressBar"></div></div>
             
             <div class="interaction-hint blink" id="hint">
-                <span>Waiting for interaction...</span>
+                <span>Waiting for verification...</span>
             </div>
         </div>
     </div>
@@ -103,14 +103,14 @@
         // 🔐 SECRET KEY
         const SECRET_KEY = "MySuperSecretKey2025"; 
 
-        // 🔥 FIXED HIGH CPC KEYWORDS LIST (Comma Error Solved)
+        // 🔥 HIGH CPC KEYWORDS
         const highPayingKeys = [
             "mesothelioma_attorney_assistance",
             "donate_car_tax_credit_usa",
             "crypto_trading_premium_account",
             "business_loan_bad_credit_approval",
             "online_degree_cyber_security_mba",
-            "structured_settlement_annuity_companies", // Comma Added Here
+            "structured_settlement_annuity_companies",
             "truck injury lawyer",
             "truck injury attorney",
             "accident attorney near me",
@@ -186,12 +186,13 @@
 
                 setTimeout(() => { document.getElementById('progressBar').style.width = "100%"; }, 100);
 
-                // Click Simulation (Referrer Fix)
+                // --- KEY CHANGE: PROGRAMMATIC CLICK ---
+                // Browser sees this as a valid navigation chain because it originated from a real user click
                 setTimeout(() => {
                     let link = document.getElementById('hidden-link');
                     link.href = targetUrl;
                     link.click(); 
-                }, 800);
+                }, 500); // 500ms delay for visual effect
             } else {
                 document.getElementById('statusTitle').innerText = "Link Error";
                 document.getElementById('statusMsg').innerText = "Destination missing.";
@@ -199,13 +200,13 @@
             }
         }
 
-        // --- TRIGGERS ---
-        document.getElementById('clickArea').addEventListener('click', verifyAndRedirect);
-        document.getElementById('clickArea').addEventListener('touchstart', verifyAndRedirect, {passive: true});
+        // --- UPDATED TRIGGERS: CLICK ONLY ---
+        // Removed passive events (scroll/mousemove) to force intentional click
+        let clickZone = document.getElementById('clickArea');
         
-        ['mousemove', 'scroll', 'keydown', 'wheel'].forEach(evt => {
-            window.addEventListener(evt, verifyAndRedirect, { once: true });
-        });
+        clickZone.addEventListener('click', verifyAndRedirect);
+        clickZone.addEventListener('touchstart', verifyAndRedirect, {passive: false}); // passive: false ensures touch is registered
+
     </script>
 
 </body>
